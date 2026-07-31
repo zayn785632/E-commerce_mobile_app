@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "705513528770",
+    "project_id": "trendtribe-ecommerce",
+    "storage_bucket": "trendtribe-ecommerce.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:705513528770:android:d01f4b81c4f6f0701e0a5b",
+        "android_client_info": {
+          "package_name": "com.example.trandtribe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtORA3kztSk9wxueNqBSXYBShQLx2w3go"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
