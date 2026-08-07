@@ -1,72 +1,37 @@
 import 'package:flutter/material.dart';
 
 class RatingBarCustom extends StatefulWidget {
-  const RatingBarCustom({super.key});
+  final Function(double) onRatingChanged; // <-- THIS FIXES THE ERROR
+
+  const RatingBarCustom({super.key, required this.onRatingChanged});
 
   @override
   _RatingBarCustomState createState() => _RatingBarCustomState();
 }
 
 class _RatingBarCustomState extends State<RatingBarCustom> {
-  double _rating = 0.0;
+  double _rating = 5.0; // Default to 5 stars
 
   void _setRating(double value) {
-    setState(() {
-      _rating = value;
-    });
+    setState(() => _rating = value);
+    widget.onRatingChanged(value); // Send value back to parent
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            IconButton(
-              icon: Icon(
-                _rating >= 1 ? Icons.star : Icons.star_border_outlined,
-                size: 30,
-              ),
-              onPressed: () => _setRating(1),
-              color: _rating >= 1 ? Colors.orange : Colors.orange,
-            ),
-            IconButton(
-              icon: Icon(
-                _rating >= 2 ? Icons.star : Icons.star_border_outlined,
-                size: 30,
-              ),
-              onPressed: () => _setRating(2),
-              color: _rating >= 2 ? Colors.orange : Colors.orange,
-            ),
-            IconButton(
-              icon: Icon(
-                _rating >= 3 ? Icons.star : Icons.star_border_outlined,
-                size: 30,
-              ),
-              onPressed: () => _setRating(3),
-              color: _rating >= 3 ? Colors.orange : Colors.orange,
-            ),
-            IconButton(
-              icon: Icon(
-                _rating >= 4 ? Icons.star : Icons.star_border_outlined,
-                size: 30,
-              ),
-              onPressed: () => _setRating(4),
-              color: _rating >= 4 ? Colors.orange : Colors.orange,
-            ),
-            IconButton(
-              icon: Icon(
-                _rating >= 5 ? Icons.star : Icons.star_border_outlined,
-                size: 30,
-              ),
-              onPressed: () => _setRating(5),
-              color: _rating >= 5 ? Colors.orange : Colors.orange,
-            ),
-          ],
-        ),
-      ],
+      children: List.generate(5, (index) {
+        int starValue = index + 1;
+        return IconButton(
+          icon: Icon(
+            _rating >= starValue ? Icons.star : Icons.star_border_outlined,
+            size: 38,
+          ),
+          onPressed: () => _setRating(starValue.toDouble()),
+          color: const Color(0xFFFF5E1F), // Signature orange stars
+        );
+      }),
     );
   }
 }

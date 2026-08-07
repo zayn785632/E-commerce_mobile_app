@@ -17,7 +17,7 @@ class Product {
     required this.quantity,
   });
 
-  // ADD THIS FACTORY METHOD TO READ FROM SUPABASE:
+  // Supabase factory method
   factory Product.fromMap(Map<String, dynamic> map) {
     return Product(
       id: (map['id'] ?? 0) as int,

@@ -1,113 +1,110 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../Product.dart';
 
 class WishListCard extends StatelessWidget {
-  const WishListCard({super.key});
+  final int wishlistId;
+  final Product product;
+  final VoidCallback onDelete;
+
+  const WishListCard({
+    super.key,
+    required this.wishlistId,
+    required this.product,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
+    String imageUrl = product.images.isNotEmpty ? product.images[0] : "";
+
     return Dismissible(
-        key: UniqueKey(), // Provide a unique key for each instance
-        direction: DismissDirection.horizontal,
-        onDismissed: (DismissDirection direction) {
-          // Handle the dismiss action here
-        },
-        background: Container(
-          decoration: BoxDecoration(
-              color: Colors.black, borderRadius: BorderRadius.circular(10)),
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20.0,
-          ),
-          child: const Icon(Icons.delete, color: Colors.white),
+      key: ValueKey(wishlistId),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) async {
+        // Delete from Database dynamically
+        await Supabase.instance.client
+            .from('wishlist')
+            .delete()
+            .eq('id', wishlistId);
+        onDelete();
+      },
+      background: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFFF5E1F), // Orange swipe to delete
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: Container(
-          height: 120,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: const [
-              BoxShadow(
-                  color: Colors.black12,
-                  spreadRadius: 2,
-                  blurRadius: 10,
-                  offset: Offset(0, 3)),
-            ],
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  height: 100,
-                  width: 75,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      image: const DecorationImage(
-                          image: AssetImage(
-                            "assets/images/tshirt4.jpg",
-                          ),
-                          fit: BoxFit.cover)),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: const Icon(Iconsax.trash, color: Colors.white, size: 28),
+      ),
+      child: Container(
+        height: 120,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFF0F0F3)),
+          boxShadow: [
+            BoxShadow(
+                color: const Color(0xFF0F1117).withOpacity(0.04),
+                blurRadius: 15,
+                offset: const Offset(0, 5)),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            children: [
+              Container(
+                width: 80,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF6F6F9),
+                  borderRadius: BorderRadius.circular(12),
+                  image: imageUrl.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(imageUrl), fit: BoxFit.cover)
+                      : null,
                 ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "T-SHIRT WITH CONTRAST PATCH",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "Quantity: 1",
-                        style: TextStyle(
-                            fontSize: 12, color: Colors.grey.shade600),
-                      ),
-                      Text(
-                        "Size: M",
-                        style: TextStyle(
-                            fontSize: 12, color: Colors.grey.shade600),
-                      ),
-                      const Spacer(),
-                      const Text(
-                        "EUR 22.95",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-                // Spacer(),
-                // TextButton(onPressed: (){},
-                // style: ButtonStyle(
-                //   backgroundColor: MaterialStatePropertyAll(Colors.black)
-                // ),
-                //  child: Text("Track Order", style: TextStyle(color: Colors.white, fontSize: 13),))
-                Container(
-                  height: 35,
-                  width: 95,
-                  decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(8)),
-                  child: const Center(
-                    child: Text(
-                      "Add to cart",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      product.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          color: Color(0xFF18181A)),
                     ),
-                  ),
+                    const SizedBox(height: 6),
+                    Text(
+                      product.category.toUpperCase(),
+                      style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey),
+                    ),
+                    const Spacer(),
+                    Text(
+                      "EUR ${product.price.toStringAsFixed(2)}",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          color: Color(0xFF18181A)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

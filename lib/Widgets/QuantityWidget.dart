@@ -10,75 +10,37 @@ class QuantityWidget extends StatefulWidget {
 
 class _QuantityWidgetState extends State<QuantityWidget> {
   int currentNumber = 1;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 30,
-      width: 90,
+      height: 44,
+      width: 120,
       decoration: BoxDecoration(
-
-          // border: Border.all(
-          //   color: Colors.black,
-          //   width: 0.5,
-          // ),
-          borderRadius: BorderRadius.circular(5)),
+        color: const Color(0xFFF4F5F8),
+        borderRadius: BorderRadius.circular(25),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          InkWell(
-            onTap: () {
-              if (currentNumber != 1) {
-                setState(() {
-                  currentNumber--;
-                });
-              }
+          IconButton(
+            onPressed: () {
+              if (currentNumber > 1) setState(() => currentNumber--);
             },
-            child: Container(
-              height: 30,
-              width: 30,
-              decoration: BoxDecoration(
-                  border: Border.all(),
-                  borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(5),
-                      bottomLeft: Radius.circular(5))),
-              child: const Icon(
-                Iconsax.minus,
-                // color: Colors.white,
-              ),
-            ),
-          ),
-          const SizedBox(
-            width: 5,
+            icon: const Icon(Iconsax.minus, size: 18, color: Color(0xFF18181A)),
           ),
           Text(
             currentNumber.toString(),
             style: const TextStyle(
-                fontWeight: FontWeight.bold, color: Colors.black),
-          ),
-          const SizedBox(
-            width: 5,
-          ),
-          InkWell(
-            onTap: () {
-              setState(() {
-                currentNumber++;
-              });
-            },
-            child: Container(
-              height: 30,
-              width: 30,
-              decoration: BoxDecoration(
-                  border: Border.all(),
-                  borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(5),
-                      bottomRight: Radius.circular(5))),
-              child: const Icon(
-                Iconsax.add,
-                // color: Colors.white,
-              ),
+              fontWeight: FontWeight.w800,
+              fontSize: 16,
+              color: Color(0xFF18181A),
             ),
-          )
+          ),
+          IconButton(
+            onPressed: () => setState(() => currentNumber++),
+            icon: const Icon(Iconsax.add, size: 18, color: Color(0xFF18181A)),
+          ),
         ],
       ),
     );
