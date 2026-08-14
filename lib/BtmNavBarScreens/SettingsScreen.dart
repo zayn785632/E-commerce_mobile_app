@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+// --- YOUR APP IMPORTS ---
 import 'package:trandtribe/MyOrder/MyOrderScreen.dart';
 import 'package:trandtribe/ShippingAddress.dart';
 import 'package:trandtribe/SignIn&UpScreen/SignIn.dart';
+import 'package:trandtribe/AdminOrdersScreen.dart'; // The new Admin Dashboard!
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -23,17 +26,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadUserData();
   }
 
+  // 1. Fetch dynamic user data from Supabase Auth
   void _loadUserData() {
     final user = Supabase.instance.client.auth.currentUser;
     if (user != null && mounted) {
       setState(() {
         userEmail = user.email ?? "No email linked";
-        userName = user.userMetadata?['full_name'] ??
-            "Mostafa"; // Defaulting to your UI screenshot
+        // Fetches 'full_name' if you saved it during signup, otherwise defaults to Mostafa
+        userName = user.userMetadata?['full_name'] ?? "Mostafa";
       });
     }
   }
 
+  // 2. Sign Out Logic
   Future<void> _signOut() async {
     await Supabase.instance.client.auth.signOut();
     Get.offAll(() => const SignIn(), transition: Transition.fadeIn);
@@ -47,6 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: const Color(0xFFF9F9FB),
         scrolledUnderElevation: 0,
         centerTitle: false,
+        automaticallyImplyLeading: false,
         title: const Text("Profile",
             style: TextStyle(
                 fontWeight: FontWeight.w900,
@@ -58,7 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // --- HEADER CARD ---
+            // --- HEADER PROFILE CARD ---
             TweenAnimationBuilder(
               tween: Tween<double>(begin: 0, end: 1),
               duration: const Duration(milliseconds: 500),
@@ -75,7 +81,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
+                              color: Colors.black.withOpacity(0.04),
                               blurRadius: 20,
                               offset: const Offset(0, 10))
                         ],
@@ -132,6 +138,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Iconsax.note_text,
                     () => Get.to(() => const MyOrderScreens(),
                         transition: Transition.cupertino)),
+
+                // --- THE ADMIN DASHBOARD BUTTON ---
+                _buildListTile(
+                    "Store Admin Dashboard",
+                    Iconsax.security_user,
+                    () => Get.to(() => const AdminOrdersScreen(),
+                        transition: Transition.downToUp)),
+
                 _buildListTile(
                     "Shipping Address",
                     Iconsax.truck_fast,
@@ -150,17 +164,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 _buildListTile("Help Center", Iconsax.call_calling, () {}),
                 _buildListTile("Privacy & Policy", Iconsax.lock, () {}),
+
+                // Red Destructive Sign Out Button
                 _buildListTile("Sign Out", Iconsax.logout, _signOut,
-                    isLast: true),
+                    isLast: true, isDestructive: true),
               ],
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  // Animation wrapper for groups
+  // --- HELPER: ANIMATED GROUP CONTAINER ---
   Widget _buildAnimatedGroup(
       {required int delay, required List<Widget> children}) {
     return TweenAnimationBuilder(
@@ -179,7 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 border: Border.all(color: const Color(0xFFF0F0F3), width: 1.5),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.02),
+                      color: Colors.black.withOpacity(0.02),
                       blurRadius: 15,
                       offset: const Offset(0, 5))
                 ],
@@ -192,9 +209,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // Exact match to your UI list elements
+  // --- HELPER: SLEEK LIST TILE ITEMS ---
   Widget _buildListTile(String title, IconData icon, VoidCallback onTap,
-      {bool isLast = false}) {
+      {bool isLast = false, bool isDestructive = false}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -207,19 +224,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                      color: const Color(0xFFF4F5F8),
+                      color: isDestructive
+                          ? const Color(0xFFFF4B4B).withOpacity(0.1)
+                          : const Color(0xFFF4F5F8),
                       borderRadius: BorderRadius.circular(8)),
-                  child: Icon(icon, size: 20, color: const Color(0xFF18181A)),
+                  child: Icon(icon,
+                      size: 20,
+                      color: isDestructive
+                          ? const Color(0xFFFF4B4B)
+                          : const Color(0xFF18181A)),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                     child: Text(title,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 15,
-                            color: Color(0xFF18181A)))),
-                const Icon(Icons.arrow_forward_ios_rounded,
-                    size: 14, color: Color(0xFFC7C7CC)),
+                            color: isDestructive
+                                ? const Color(0xFFFF4B4B)
+                                : const Color(0xFF18181A)))),
+                Icon(Icons.arrow_forward_ios_rounded,
+                    size: 14,
+                    color: isDestructive
+                        ? Colors.transparent
+                        : const Color(0xFFC7C7CC)),
               ],
             ),
           ),
