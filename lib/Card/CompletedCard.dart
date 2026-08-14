@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:trandtribe/MyOrder/ReviewScreens.dart';
-import 'package:trandtribe/Product.dart'; // Make sure to import your Product model!
+import 'package:trandtribe/Product.dart';
 
 class CompletedCard extends StatelessWidget {
-  final Product product; // 1. Require a Product object for this card
+  final Product product;
+  final String size;
+  final int quantity;
 
-  const CompletedCard({
-    super.key,
-    required this.product,
-  });
+  const CompletedCard(
+      {super.key,
+      required this.product,
+      required this.size,
+      required this.quantity});
 
   @override
   Widget build(BuildContext context) {
-    // Safely get the first image from the product
     String imageUrl = product.images.isNotEmpty ? product.images[0] : "";
 
     return Container(
@@ -21,85 +24,86 @@ class CompletedCard extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: const [
+        border: Border.all(color: const Color(0xFFF0F0F3)),
+        boxShadow: [
           BoxShadow(
-              color: Colors.black12,
-              spreadRadius: 2,
-              blurRadius: 10,
-              offset: Offset(0, 3)),
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 20,
+              offset: const Offset(0, 5))
         ],
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(12.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Container(
-              height: 100,
-              width: 75,
+              height: double.infinity,
+              width: 85,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: const Color(0xFFF6F6F9), // Placeholder color
-                // 2. Load the image dynamically from Supabase
+                borderRadius: BorderRadius.circular(12),
+                color: const Color(0xFFF6F6F9),
                 image: imageUrl.isNotEmpty
                     ? DecorationImage(
-                        image: NetworkImage(imageUrl),
-                        fit: BoxFit.cover,
-                      )
+                        image: NetworkImage(imageUrl), fit: BoxFit.cover)
                     : null,
               ),
             ),
-            const SizedBox(
-              width: 10,
-            ),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    product.name, // 3. Dynamic Product Name
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    "Quantity: 1",
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                  Text(
-                    "Size: M",
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  Text(product.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w800, fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text("Qty: $quantity",
+                          style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w700)),
+                      const SizedBox(width: 10),
+                      Text("Size: $size",
+                          style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w700)),
+                    ],
                   ),
                   const Spacer(),
-                  Text(
-                    "EUR ${product.price.toStringAsFixed(2)}", // 4. Dynamic Price
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  Text("EUR ${(product.price * quantity).toStringAsFixed(2)}",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900, fontSize: 16)),
                 ],
               ),
             ),
             InkWell(
-              onTap: () {
-                // 5. THE FIX: Pass the dynamic product straight to the Review Screen!
-                Get.to(() => ReviewScreen(product: product));
-              },
+              onTap: () => Get.to(() => ReviewScreen(product: product),
+                  transition: Transition.downToUp),
+              borderRadius: BorderRadius.circular(12),
               child: Container(
-                height: 35,
+                height: 38,
                 width: 95,
                 decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(8)),
-                child: const Center(
-                  child: Text(
-                    "Review",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold),
-                  ),
+                    color: const Color(0xFF18181A),
+                    borderRadius: BorderRadius.circular(12)),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Iconsax.edit, color: Colors.white, size: 14),
+                    SizedBox(width: 4),
+                    Text("Review",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800)),
+                  ],
                 ),
               ),
             )

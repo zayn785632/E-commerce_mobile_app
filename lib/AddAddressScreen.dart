@@ -1,12 +1,33 @@
-import 'package:ficonsax/ficonsax.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:trandtribe/Widgets/AddressField.dart';
 import 'package:trandtribe/Widgets/RoundedButton.dart';
 
-
-class AddAddressScreen extends StatelessWidget {
+class AddAddressScreen extends StatefulWidget {
   const AddAddressScreen({super.key});
+  @override
+  State<AddAddressScreen> createState() => _AddAddressScreenState();
+}
+
+class _AddAddressScreenState extends State<AddAddressScreen> {
+  final nameCtrl = TextEditingController();
+  final phoneCtrl = TextEditingController();
+  final addrCtrl = TextEditingController();
+  bool isSaving = false;
+
+  Future<void> _saveAddress() async {
+    if (nameCtrl.text.isEmpty ||
+        phoneCtrl.text.isEmpty ||
+        addrCtrl.text.isEmpty) return;
+    setState(() => isSaving = true);
+    await Supabase.instance.client.from('addresses').insert({
+      'full_name': nameCtrl.text.trim(),
+      'phone': phoneCtrl.text.trim(),
+      'address_line': addrCtrl.text.trim(),
+    });
+    Get.back();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,49 +35,39 @@ class AddAddressScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        // automaticallyImplyLeading: false,
         centerTitle: true,
-
-        scrolledUnderElevation: 0,
-        title: const Text(
-          "Add Address",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-        ),
+        title: const Text("New Address",
+            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         child: Column(
-         crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             const Text("Address",style: TextStyle(fontWeight: FontWeight.bold),),
-               const SizedBox(height: 15,),
             AddressTextField(
-              controller: TextEditingController(), 
-              suffixIcon:  Icon(IconsaxBold.location, color: Colors.grey.shade800,),
-              text: "House no, street, area & city", 
-              textInputType: TextInputType.name, 
-              obscure: false),
-              const SizedBox(height: 15,),
-               const Text("Full Name", style: TextStyle(fontWeight: FontWeight.bold),),
-               const SizedBox(height: 15,),
-                AddressTextField(
-              controller: TextEditingController(),            
-              text: "Input full Name", 
-              textInputType: TextInputType.name, 
-              obscure: false),
-                const SizedBox(height: 15,),
-              const Text("Phone Number",style: TextStyle(fontWeight: FontWeight.bold),),
-               const SizedBox(height: 15,),
-               AddressTextField(
-              controller: TextEditingController(), 
-              text: "Input phone number", 
-              textInputType: TextInputType.number, 
-              obscure: false),
-              const Spacer(),
-              RoundedButton(title: "Save Address", onTap: (){}, width: double.infinity)
-              
-              ],
-              
+                controller: nameCtrl,
+                text: "Full Name",
+                textInputType: TextInputType.name,
+                obscure: false),
+            const SizedBox(height: 20),
+            AddressTextField(
+                controller: phoneCtrl,
+                text: "Phone Number",
+                textInputType: TextInputType.phone,
+                obscure: false),
+            const SizedBox(height: 20),
+            AddressTextField(
+                controller: addrCtrl,
+                text: "House no, street, city",
+                textInputType: TextInputType.streetAddress,
+                obscure: false),
+            const Spacer(),
+            RoundedButton(
+                title: "Save Address",
+                loading: isSaving,
+                onTap: _saveAddress,
+                width: double.infinity),
+          ],
         ),
       ),
     );

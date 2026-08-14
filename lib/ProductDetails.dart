@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-// Absolute imports to prevent path errors!
 import 'package:trandtribe/SeeReviewsScreen.dart';
 import 'package:trandtribe/Widgets/SizeSelectionWidget.dart';
 import 'package:trandtribe/Product.dart';
@@ -23,13 +21,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   bool isFavorite = false;
   bool isChecking = true;
 
+  // Track the user's cart selections!
+  String selectedSize = 'M';
+  int selectedQuantity = 1;
+
   @override
   void initState() {
     super.initState();
     _checkIfFavorite();
   }
 
-  // Check Supabase to see if this item is in the wishlist
   Future<void> _checkIfFavorite() async {
     final response = await Supabase.instance.client
         .from('wishlist')
@@ -45,12 +46,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     }
   }
 
-  // Add or Remove from Supabase Wishlist
   Future<void> _toggleFavorite() async {
-    setState(() {
-      isFavorite = !isFavorite; // UI updates instantly for a snappy feel
-    });
-
+    setState(() => isFavorite = !isFavorite);
     try {
       if (isFavorite) {
         await Supabase.instance.client
@@ -63,7 +60,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             .eq('product_id', widget.product.id);
       }
     } catch (e) {
-      // Revert if it failed
       setState(() => isFavorite = !isFavorite);
     }
   }
@@ -76,10 +72,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         backgroundColor: Colors.white,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        title: const Text(
-          "Details",
-          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
-        ),
+        title: const Text("Details",
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20)),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 15),
@@ -114,28 +108,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       itemBuilder: (context, index) {
                         return Container(
                           color: const Color(0xFFF6F6F9),
-                          child: Image.network(
-                            widget.product.images[index],
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                    color: Color(0xFFFF5E1F)),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Center(
-                              child: Icon(Iconsax.image,
-                                  size: 60, color: Colors.grey),
-                            ),
-                          ),
+                          child: Image.network(widget.product.images[index],
+                              fit: BoxFit.cover),
                         );
                       },
                     ),
                   ),
                   const SizedBox(height: 15),
-                  // Animated Dots Indicator
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
@@ -160,15 +139,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.product.name,
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF18181A),
-                            height: 1.2,
-                          ),
-                        ),
+                        Text(widget.product.name,
+                            style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF18181A),
+                                height: 1.2)),
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -181,22 +157,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               child: const Text(
                                 "Read & Write Reviews",
                                 style: TextStyle(
-                                  color: Color(0xFF18181A),
-                                  fontWeight: FontWeight.w700,
-                                  decoration: TextDecoration.underline,
-                                ),
+                                    color: Color(0xFF18181A),
+                                    fontWeight: FontWeight.w700,
+                                    decoration: TextDecoration.underline),
                               ),
                             )
                           ],
                         ),
                         const SizedBox(height: 24),
-                        Text(
-                          widget.product.description,
-                          style: const TextStyle(
-                              fontSize: 15,
-                              color: Color(0xFF6E6E73),
-                              height: 1.6),
-                        ),
+                        Text(widget.product.description,
+                            style: const TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF6E6E73),
+                                height: 1.6)),
                         const SizedBox(height: 30),
                         const Text("SELECT SIZE",
                             style: TextStyle(
@@ -204,7 +177,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 fontWeight: FontWeight.w800,
                                 color: Colors.grey)),
                         const SizedBox(height: 12),
-                        const SizeSelectionWidget(),
+                        // Listen for size changes
+                        SizeSelectionWidget(
+                            onSizeSelected: (size) =>
+                                setState(() => selectedSize = size)),
                         const SizedBox(height: 30),
                         const Text("QUANTITY",
                             style: TextStyle(
@@ -212,7 +188,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 fontWeight: FontWeight.w800,
                                 color: Colors.grey)),
                         const SizedBox(height: 12),
-                        const QuantityWidget(),
+                        // Listen for quantity changes
+                        QuantityWidget(
+                            onQuantityChanged: (qty) =>
+                                setState(() => selectedQuantity = qty)),
                         const SizedBox(height: 20),
                       ],
                     ),
@@ -221,7 +200,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               ),
             ),
           ),
-          PriceAddCart(product: widget.product),
+          // Pass the dynamic selections to the button
+          PriceAddCart(
+              product: widget.product,
+              selectedSize: selectedSize,
+              selectedQuantity: selectedQuantity),
         ],
       ),
     );

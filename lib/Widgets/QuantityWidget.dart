@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
 class QuantityWidget extends StatefulWidget {
-  const QuantityWidget({super.key});
+  final Function(int) onQuantityChanged; // Passes data to parent
+  const QuantityWidget({super.key, required this.onQuantityChanged});
 
   @override
   State<QuantityWidget> createState() => _QuantityWidgetState();
@@ -25,20 +26,25 @@ class _QuantityWidgetState extends State<QuantityWidget> {
         children: [
           IconButton(
             onPressed: () {
-              if (currentNumber > 1) setState(() => currentNumber--);
+              if (currentNumber > 1) {
+                setState(() => currentNumber--);
+                widget.onQuantityChanged(currentNumber); // Trigger callback
+              }
             },
             icon: const Icon(Iconsax.minus, size: 18, color: Color(0xFF18181A)),
           ),
           Text(
             currentNumber.toString(),
             style: const TextStyle(
-              fontWeight: FontWeight.w800,
-              fontSize: 16,
-              color: Color(0xFF18181A),
-            ),
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+                color: Color(0xFF18181A)),
           ),
           IconButton(
-            onPressed: () => setState(() => currentNumber++),
+            onPressed: () {
+              setState(() => currentNumber++);
+              widget.onQuantityChanged(currentNumber); // Trigger callback
+            },
             icon: const Icon(Iconsax.add, size: 18, color: Color(0xFF18181A)),
           ),
         ],

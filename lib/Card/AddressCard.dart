@@ -1,98 +1,94 @@
-
-import 'package:ficonsax/ficonsax.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
 class AddressCard extends StatelessWidget {
-  const AddressCard({
-    super.key,
-  });
+  final String name;
+  final String phone;
+  final String address;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const AddressCard(
+      {super.key,
+      required this.name,
+      required this.phone,
+      required this.address,
+      required this.isSelected,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 120,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        // border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(10),
-             boxShadow: const [
-          BoxShadow(
-              color: Colors.black12,
-              spreadRadius: 2,
-              blurRadius: 10,
-              offset: Offset(0, 3)),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 15,
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFFFF5E1F).withValues(alpha: 0.05)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+              color: isSelected
+                  ? const Color(0xFFFF5E1F)
+                  : const Color(0xFFF0F0F3),
+              width: 2),
+          boxShadow: isSelected
+              ? []
+              : [
+                  BoxShadow(
+                      color: const Color(0xFF0F1117).withValues(alpha: 0.03),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5))
+                ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Home",
-                  style: TextStyle(
-                      fontSize: 12, color: Colors.grey.shade600),
-                ),
-                Icon(
-                  Iconsax.more,
-                  size: 18,
-                  color: Colors.grey.shade600,
-                ),
-              ],
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 24,
+              width: 24,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: isSelected
+                          ? const Color(0xFFFF5E1F)
+                          : Colors.grey.shade400,
+                      width: isSelected ? 6 : 2)),
             ),
-            const SizedBox(
-              height: 5,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(name,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              color: Color(0xFF18181A))),
+                      const Icon(Iconsax.edit,
+                          size: 16, color: Color(0xFF8E8E93)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(address,
+                      style: const TextStyle(
+                          color: Color(0xFF6E6E73), height: 1.4, fontSize: 13)),
+                  const SizedBox(height: 8),
+                  Text(phone,
+                      style: const TextStyle(
+                          color: Color(0xFF18181A),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13)),
+                ],
+              ),
             ),
-            const Row(
-              children: [
-                Icon(
-                  Iconsax.location5,
-                  size: 20,
-                ),
-                SizedBox(width: 10),
-                Text("Rahman Nagar, 2no Gate, Chittagong")
-              ],
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            const Row(
-              children: [
-                Icon(
-                  IconsaxBold.frame,
-                  size: 20,
-                ),
-                SizedBox(width: 10),
-                Text(
-                  "Uhlapru Marma",
-                  style: TextStyle(fontWeight: FontWeight.w400),
-                )
-              ],
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            const Row(
-              children: [
-                Icon(
-                  IconsaxBold.call_calling,
-                  size: 18,
-                ),
-                SizedBox(width: 10),
-                Text("+08801402388903")
-              ],
-            ),
-          
           ],
         ),
-        
       ),
     );
   }

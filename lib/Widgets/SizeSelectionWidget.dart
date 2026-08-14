@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SizeSelectionWidget extends StatefulWidget {
-  const SizeSelectionWidget({super.key});
+  final Function(String) onSizeSelected; // Passes data to parent
+  const SizeSelectionWidget({super.key, required this.onSizeSelected});
 
   @override
   _SizeSelectionWidgetState createState() => _SizeSelectionWidgetState();
@@ -28,7 +29,10 @@ class _SizeSelectionWidgetState extends State<SizeSelectionWidget> {
   Widget _buildSizeContainer(String size) {
     bool isSelected = _selectedSize == size;
     return GestureDetector(
-      onTap: () => setState(() => _selectedSize = size),
+      onTap: () {
+        setState(() => _selectedSize = size);
+        widget.onSizeSelected(size); // Trigger callback
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: 54.0,

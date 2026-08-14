@@ -1,11 +1,10 @@
-import 'package:ficonsax/ficonsax.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:trandtribe/MyOrder/MyOrderScreen.dart';
 import 'package:trandtribe/ShippingAddress.dart';
 import 'package:trandtribe/SignIn&UpScreen/SignIn.dart';
-import 'package:trandtribe/Widgets/SettingsElements.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -15,7 +14,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // 1. Create variables to hold the dynamic data
   String userName = "Loading...";
   String userEmail = "Loading...";
 
@@ -25,206 +23,214 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadUserData();
   }
 
-  // 2. Fetch the current logged-in user from Supabase
   void _loadUserData() {
     final user = Supabase.instance.client.auth.currentUser;
-
-    if (user != null) {
+    if (user != null && mounted) {
       setState(() {
-        // Read the email and the custom full_name metadata we saved during signup
         userEmail = user.email ?? "No email linked";
-        userName = user.userMetadata?['full_name'] ?? "TrendTribe Shopper";
+        userName = user.userMetadata?['full_name'] ??
+            "Mostafa"; // Defaulting to your UI screenshot
       });
     }
   }
 
-  // 3. Create the Sign Out function
   Future<void> _signOut() async {
     await Supabase.instance.client.auth.signOut();
-    // Get.offAll removes all previous screens so they can't press "back" to enter the app
-    Get.offAll(() => const SignIn());
+    Get.offAll(() => const SignIn(), transition: Transition.fadeIn);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF9F9FB),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        forceMaterialTransparency: false,
-        automaticallyImplyLeading: false,
+        backgroundColor: const Color(0xFFF9F9FB),
         scrolledUnderElevation: 0,
         centerTitle: false,
-        title: const Text(
-          "Profile",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-        ),
+        title: const Text("Profile",
+            style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 26,
+                color: Color(0xFF18181A))),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            children: [
-              Container(
-                height: 80,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        spreadRadius: 2,
-                        blurRadius: 10,
-                        offset: Offset(0, 3),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            // --- HEADER CARD ---
+            TweenAnimationBuilder(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, child) {
+                return Transform.translate(
+                  offset: Offset(0, 20 * (1 - value)),
+                  child: Opacity(
+                    opacity: value,
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10))
+                        ],
                       ),
-                    ],
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10)),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        height: 60,
-                        width: 60,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          image: const DecorationImage(
-                            image: AssetImage(
-                              "assets/images/userprofile.png",
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 65,
+                            width: 65,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8ECEF),
+                              borderRadius: BorderRadius.circular(12),
+                              image: const DecorationImage(
+                                  image: AssetImage(
+                                      "assets/images/userprofile.png"),
+                                  fit: BoxFit.cover),
                             ),
-                            fit: BoxFit.cover,
                           ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      // 4. Inject the dynamic variables into the UI
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              userName,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18),
-                              overflow: TextOverflow
-                                  .ellipsis, // Prevents overflow if name is long
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(userName,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 18,
+                                        color: Color(0xFF18181A))),
+                                const SizedBox(height: 4),
+                                Text(userEmail,
+                                    style: const TextStyle(
+                                        color: Color(0xFF8E8E93),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600)),
+                              ],
                             ),
-                            Text(
-                              userEmail,
-                              style: TextStyle(
-                                color: Colors.grey.shade500,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          ],
-                        ),
-                      )
-                    ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-              Container(
-                height: 260,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade400),
-                    borderRadius: BorderRadius.circular(15)),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SettingsElements(
-                          title: "My Profile",
-                          icon: IconsaxBold.user,
-                          onTap: () {}),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      SettingsElements(
-                          title: "My Orders",
-                          icon: IconsaxBold.menu_board,
-                          onTap: () {
-                            Get.to(() => const MyOrderScreens());
-                          }),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      SettingsElements(
-                        title: "Shipping Address",
-                        icon: IconsaxBold.truck,
-                        onTap: () {
-                          Get.to(() => const ShippingAddressScreen());
-                        },
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      SettingsElements(
-                          title: "Payment Method",
-                          icon: IconsaxBold.card,
-                          onTap: () {}),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      SettingsElements(
-                          title: 'Settings',
-                          icon: IconsaxBold.setting_2,
-                          onTap: () {}),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-              Container(
-                height: 170,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade400),
-                    borderRadius: BorderRadius.circular(15)),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SettingsElements(
-                        onTap: () {},
-                        title: 'Help Center',
-                        icon: IconsaxBold.call_calling,
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      SettingsElements(
-                          title: 'Privacy & Policy',
-                          icon: IconsaxBold.lock,
-                          onTap: () {}),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      // 5. Connect the Sign Out button to our dynamic function
-                      SettingsElements(
-                        title: 'Sign Out',
-                        icon: IconsaxBold.logout,
-                        onTap: _signOut,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+
+            // --- FIRST MENU GROUP ---
+            _buildAnimatedGroup(
+              delay: 100,
+              children: [
+                _buildListTile("My Profile", Iconsax.user, () {}),
+                _buildListTile(
+                    "My Orders",
+                    Iconsax.note_text,
+                    () => Get.to(() => const MyOrderScreens(),
+                        transition: Transition.cupertino)),
+                _buildListTile(
+                    "Shipping Address",
+                    Iconsax.truck_fast,
+                    () => Get.to(() => const ShippingAddressScreen(),
+                        transition: Transition.cupertino)),
+                _buildListTile("Payment Method", Iconsax.card, () {}),
+                _buildListTile("Settings", Iconsax.setting_2, () {},
+                    isLast: true),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // --- SECOND MENU GROUP ---
+            _buildAnimatedGroup(
+              delay: 200,
+              children: [
+                _buildListTile("Help Center", Iconsax.call_calling, () {}),
+                _buildListTile("Privacy & Policy", Iconsax.lock, () {}),
+                _buildListTile("Sign Out", Iconsax.logout, _signOut,
+                    isLast: true),
+              ],
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  // Animation wrapper for groups
+  Widget _buildAnimatedGroup(
+      {required int delay, required List<Widget> children}) {
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: Duration(milliseconds: 500 + delay),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: Offset(0, 30 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFF0F0F3), width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5))
+                ],
+              ),
+              child: Column(children: children),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Exact match to your UI list elements
+  Widget _buildListTile(String title, IconData icon, VoidCallback onTap,
+      {bool isLast = false}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                      color: const Color(0xFFF4F5F8),
+                      borderRadius: BorderRadius.circular(8)),
+                  child: Icon(icon, size: 20, color: const Color(0xFF18181A)),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                    child: Text(title,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            color: Color(0xFF18181A)))),
+                const Icon(Icons.arrow_forward_ios_rounded,
+                    size: 14, color: Color(0xFFC7C7CC)),
+              ],
+            ),
+          ),
+          if (!isLast)
+            const Divider(
+                height: 1,
+                thickness: 1,
+                color: Color(0xFFF0F0F3),
+                indent: 60,
+                endIndent: 20),
+        ],
       ),
     );
   }
