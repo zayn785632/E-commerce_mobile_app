@@ -3,11 +3,10 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// --- YOUR APP IMPORTS ---
 import 'package:trandtribe/MyOrder/MyOrderScreen.dart';
 import 'package:trandtribe/ShippingAddress.dart';
 import 'package:trandtribe/SignIn&UpScreen/SignIn.dart';
-import 'package:trandtribe/AdminOrdersScreen.dart'; // The new Admin Dashboard!
+import 'package:trandtribe/AdminOrdersScreen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -19,6 +18,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   String userName = "Loading...";
   String userEmail = "Loading...";
+  bool isAdmin = false; // <-- 1. ADMIN LOCK VARIABLE
 
   @override
   void initState() {
@@ -26,19 +26,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadUserData();
   }
 
-  // 1. Fetch dynamic user data from Supabase Auth
   void _loadUserData() {
     final user = Supabase.instance.client.auth.currentUser;
     if (user != null && mounted) {
       setState(() {
         userEmail = user.email ?? "No email linked";
-        // Fetches 'full_name' if you saved it during signup, otherwise defaults to Mostafa
-        userName = user.userMetadata?['full_name'] ?? "Mostafa";
+        userName = user.userMetadata?['full_name'] ?? "TrendTribe Shopper";
+
+        // --- 2. ADMIN AUTHENTICATION LOGIC ---
+        // Change 'mostafa@gmail.com' to whatever email you use to test the Admin side!
+        if (userEmail.toLowerCase() == 'mostafa@gmail.com' ||
+            userEmail.toLowerCase() == 'admin@trendtribe.com') {
+          isAdmin = true;
+        }
       });
     }
   }
 
-  // 2. Sign Out Logic
   Future<void> _signOut() async {
     await Supabase.instance.client.auth.signOut();
     Get.offAll(() => const SignIn(), transition: Transition.fadeIn);
@@ -105,11 +109,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(userName,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 18,
-                                        color: Color(0xFF18181A))),
+                                Row(
+                                  children: [
+                                    Text(userName,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 18,
+                                            color: Color(0xFF18181A))),
+                                    // Shows a cool VIP badge if the user is an admin
+                                    if (isAdmin) ...[
+                                      const SizedBox(width: 8),
+                                      const Icon(Icons.verified,
+                                          color: Color(0xFFFF5E1F), size: 16)
+                                    ]
+                                  ],
+                                ),
                                 const SizedBox(height: 4),
                                 Text(userEmail,
                                     style: const TextStyle(
@@ -139,12 +153,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     () => Get.to(() => const MyOrderScreens(),
                         transition: Transition.cupertino)),
 
-                // --- THE ADMIN DASHBOARD BUTTON ---
-                _buildListTile(
-                    "Store Admin Dashboard",
-                    Iconsax.security_user,
-                    () => Get.to(() => const AdminOrdersScreen(),
-                        transition: Transition.downToUp)),
+                // --- 3. DYNAMIC ADMIN DASHBOARD ---
+                // This button ONLY renders if isAdmin is true!
+                if (isAdmin)
+                  _buildListTile(
+                      "Store Admin Dashboard",
+                      Iconsax.security_user,
+                      () => Get.to(() => const AdminOrdersScreen(),
+                          transition: Transition.downToUp)),
 
                 _buildListTile(
                     "Shipping Address",
@@ -164,8 +180,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 _buildListTile("Help Center", Iconsax.call_calling, () {}),
                 _buildListTile("Privacy & Policy", Iconsax.lock, () {}),
-
-                // Red Destructive Sign Out Button
                 _buildListTile("Sign Out", Iconsax.logout, _signOut,
                     isLast: true, isDestructive: true),
               ],
@@ -177,7 +191,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // --- HELPER: ANIMATED GROUP CONTAINER ---
   Widget _buildAnimatedGroup(
       {required int delay, required List<Widget> children}) {
     return TweenAnimationBuilder(
@@ -209,7 +222,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // --- HELPER: SLEEK LIST TILE ITEMS ---
   Widget _buildListTile(String title, IconData icon, VoidCallback onTap,
       {bool isLast = false, bool isDestructive = false}) {
     return InkWell(
